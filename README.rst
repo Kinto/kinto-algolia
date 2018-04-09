@@ -30,7 +30,8 @@ In the `Kinto <http://kinto.readthedocs.io/>`_ settings:
 .. code-block :: ini
 
     kinto.includes = kinto_algolia
-    kinto.algolia.hosts = localhost:9200
+    kinto.algolia.application_id = YourApplicationID
+	kinto.algolia.api_key = YourAPIKey
 
 By default, indices names are prefixed with ``kinto-``. You change this with:
 
