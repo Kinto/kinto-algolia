@@ -31,7 +31,7 @@ In the `Kinto <http://kinto.readthedocs.io/>`_ settings:
 
     kinto.includes = kinto_algolia
     kinto.algolia.application_id = YourApplicationID
-	kinto.algolia.api_key = YourAPIKey
+    kinto.algolia.api_key = YourAPIKey
 
 By default, indices names are prefixed with ``kinto-``. You change this with:
 

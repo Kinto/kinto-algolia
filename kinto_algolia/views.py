@@ -5,7 +5,7 @@ from algoliasearch.helpers import AlgoliaException
 from kinto.core import authorization
 from kinto.core import Service
 from kinto.core import utils
-from kinto.core.errors import http_error, ERRORS
+from kinto.core.errors import http_error, ERRORS, raise_invalid
 from pyramid import httpexceptions
 
 
@@ -38,12 +38,9 @@ def search_view(request, **kwargs):
     configured = min(paginate_by, max_fetch_size)
     # If the size is specified in query, ignore it if larger than setting.
     specified = None
-    if "body" in kwargs:
-        try:
-            body = json.loads(kwargs["body"].decode("utf-8"))
-            specified = body.get("size")
-        except json.decoder.JSONDecodeError:
-            pass
+    if "size" in kwargs:
+        specified = kwargs.get("hitsPerPage")
+
     if specified is None or specified > configured:
         kwargs.setdefault("hitsPerPage", configured)
 
@@ -68,8 +65,16 @@ def search_view(request, **kwargs):
 
 @search.post(permission=authorization.DYNAMIC)
 def post_search(request):
-    body = request.body
-    return search_view(request, body=body)
+    try:
+        body = json.loads(request.body.decode("utf-8"))
+    except json.decoder.JSONDecodeError:
+        error_details = {
+            'name': 'JSONDecodeError',
+            'description': 'Please make sure your request body is a valid JSON payload.',
+        }
+        raise_invalid(request, **error_details)
+
+    return search_view(request, **body)
 
 
 @search.get(permission=authorization.DYNAMIC)

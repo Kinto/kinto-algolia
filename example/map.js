@@ -21,7 +21,7 @@ map.on('load moveend', (e) => {
       // Render the results as a list of bullet points.
       const listing = document.getElementById("listing");
       listing.innerHTML = "";
-      hits.map(({_source: pizzeria}) => {
+      hits.map((pizzeria) => {
         const node = document.createElement("li");
         const textnode = document.createTextNode(pizzeria.name || "(No name)");
         node.appendChild(textnode);
@@ -45,7 +45,7 @@ kinto.bucket(bucket).collection(collection).listRecords()
     // Add a circle on the map for each record.
     pizzerias.map((pizzeria) => {
       // Leaflet maps use [lat, lng] and [lng, lat].
-      const latlng = [pizzeria._geoloc['lng'], pizzeria.location['lat']];
+      const latlng = [pizzeria._geoloc['lat'], pizzeria._geoloc['lng']];
       L.circleMarker(latlng, {
         color: 'purple',
         fillOpacity: 0.7
@@ -63,17 +63,12 @@ function searchExtent(bbox) {
     bbox.getSouthEast().lat, bbox.getSouthEast().lng
   ];
   const query = {
-    query: 'query',
-    insideBoundingBox: [boundingBox]
+    insideBoundingBox: boundingBox.join()
   };
-
-  return index.search({
-    insideBoundingBox: [boundingBox]
-  }).then(({hits: {hits}}) => hits);
 
   return fetch(`${server}/buckets/${bucket}/collections/${collection}/search`, {
     body: JSON.stringify(query), method: "POST", headers: {"Content-Type": "application/json"}
   })
     .then(response => response.json())
-    .then(({hits: {hits}}) => hits);
+    .then(({hits}) => hits);
 }
