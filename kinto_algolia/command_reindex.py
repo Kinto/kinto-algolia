@@ -1,5 +1,6 @@
 import argparse
 import logging
+import time
 import sys
 
 from algoliasearch.helpers import AlgoliaException
@@ -61,6 +62,12 @@ def main(cli_args=None):
 
     # XXX: Are you sure?
     recreate_index(indexer, bucket_id, collection_id, settings)
+    print("Waiting for Algolia quota stats to propagate.")
+    for _ in range(3):
+        time.sleep(1)  # Wait a couple of seconds
+        print('.', end='')
+        sys.stdout.flush()
+    print()
     reindex_records(indexer, registry.storage, bucket_id, collection_id)
 
     return 0
@@ -115,6 +122,7 @@ def reindex_records(indexer, storage, bucket_id, collection_id):
                 for record in records:
                     bulk.index_record(bucket_id, collection_id, record=record)
                 print(".", end="")
+                sys.stdout.flush()
             total += len(list(bulk.operations.items())[0][1])
         except AlgoliaException:
             logger.exception("Failed to index record")
