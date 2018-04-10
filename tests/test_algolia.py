@@ -10,6 +10,8 @@ from . import BaseWebTest
 class RecordIndexing(BaseWebTest, unittest.TestCase):
 
     def setUp(self):
+        self.app.app.registry.indexer.flush()
+        sleep(1)
         self.app.put("/buckets/bid", headers=self.headers)
         self.app.put("/buckets/bid/collections/cid", headers=self.headers)
         resp = self.app.post_json("/buckets/bid/collections/cid/records",
