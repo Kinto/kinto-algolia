@@ -69,7 +69,7 @@ Or an advanced search using request body:
 
 ::
 
-    $ echo '{"insideBoundingBox": [[46.650828100116044, 7.123046875, 45.17210966999772, 1.009765625]]}' | \
+    $ echo '{"insideBoundingBox": "46.650828100116044,7.123046875,45.17210966999772,1.009765625"}' | \
         http POST http://localhost:8888/v1/buckets/example/collections/notes/search \
             --auth token:alice-token
 
@@ -83,6 +83,32 @@ Or an advanced search using request body:
     Server: waitress
 
     {
+      "hits": [
+        {
+           "_geoloc": {
+               "lat": 40.639751,
+               "lng": -73.778925
+           },
+           "_highlightResult": {
+               "title": {
+                   "matchLevel": "none",
+                   "matchedWords": [],
+                   "value": "Kinto"
+               }
+           },
+           "last_modified": 1523349594783,
+           "title": "Kinto",
+           "description": "A database for the web",
+           "objectID": "1008855320"
+        }
+      ],
+      "hitsPerPage": 1000,
+      "nbHits": 1,
+      "nbPages": 1,
+      "page": 0,
+      "params": "insideBoundingBox=42.124710287101955%2C9.335632324218752%2C41.47360232634395%2C14.403076171875002&hitsPerPage=10000&query=",
+      "processingTimeMS": 2,
+      "query": ""
     }
 
 
@@ -101,7 +127,7 @@ in the ``index:settings`` property:
     }' | http PATCH "http://localhost:8888/v1/buckets/blog/collections/builds" \
         --auth token:admin-token --verbose
 
-Refer to Algolia official documentation for more information about settings.
+Refer to [Algolia official documentation](https://www.algolia.com/doc/api-reference/api-methods/get-settings/?language=python#response) for more information about settings.
 
 
 Running the tests

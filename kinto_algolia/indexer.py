@@ -1,4 +1,5 @@
 import logging
+from copy import deepcopy
 from contextlib import contextmanager
 
 from algoliasearch import algoliasearch
@@ -72,7 +73,10 @@ class BulkClient:
     def index_record(self, bucket_id, collection_id, record, id_field="id"):
         indexname = self.indexer.indexname(bucket_id, collection_id)
         self.operations.setdefault(indexname, [])
-        self.operations[indexname].append({'action': 'addObject', 'body': record})
+        obj = deepcopy(record)
+        record_id = obj.pop(id_field)
+        obj["objectID"] = record_id
+        self.operations[indexname].append({'action': 'addObject', 'body': obj})
 
     def unindex_record(self, bucket_id, collection_id, record, id_field="id"):
         indexname = self.indexer.indexname(bucket_id, collection_id)
