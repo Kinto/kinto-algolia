@@ -17,6 +17,11 @@ class RecordIndexing(BaseWebTest, unittest.TestCase):
                                   headers=self.headers)
         self.record = resp.json["data"]
 
+    def test_new_index_settings_are_updated(self):
+        self.app.put_json("/buckets/bid/collections/cid",
+                          {"data": {"index:settings": {}}},
+                          headers=self.headers)
+
     def test_new_records_are_indexed(self):
         resp = self.app.post("/buckets/bid/collections/cid/search",
                              headers=self.headers)

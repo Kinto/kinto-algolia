@@ -1,4 +1,5 @@
 import unittest
+from time import sleep
 
 from . import BaseWebTest
 
@@ -30,6 +31,7 @@ class PostActivation(BaseWebTest, unittest.TestCase):
         self.app.post_json("/buckets/bid/collections/cid/records",
                            {"data": {"after": "indexing"}},
                            headers=self.headers)
+        sleep(1)
         resp = self.app.get("/buckets/bid/collections/cid/search",
                             headers=self.headers)
         results = resp.json

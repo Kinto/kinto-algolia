@@ -24,9 +24,7 @@ def on_collection_updated(event):
         old_schema = updated["old"].get("index:settings")
         new_schema = updated["new"].get("index:settings")
         # Create if there was no index before.
-        if old_schema is None and new_schema is not None:
-            indexer.create_index(bucket_id, collection_id, schema=new_schema)
-        elif old_schema != new_schema:
+        if old_schema != new_schema:
             indexer.update_index(bucket_id, collection_id, schema=new_schema)
 
 

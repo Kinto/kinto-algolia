@@ -18,6 +18,10 @@ class SearchView(BaseWebTest, unittest.TestCase):
             client.init_index.return_value.search.side_effect = AlgoliaException
             self.app.post("/buckets/bid/collections/cid/search", headers=self.headers, status=400)
 
+    def test_search_response_error_400_with_wrong_body(self):
+        self.app.post("/buckets/bid/collections/cid/search", 'blah',
+                      headers=self.headers, status=400)
+
     def test_invalid_search_query(self):
         body = {"whatever": {"wrong": "bad"}}
         resp = self.app.post_json("/buckets/bid/collections/cid/search",

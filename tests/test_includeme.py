@@ -1,9 +1,12 @@
 import mock
 import unittest
 
+import kinto.core
 from algoliasearch.helpers import AlgoliaException
-from kinto_algolia import __version__ as algolia_version
+from pyramid import testing
+from pyramid.exceptions import ConfigurationError
 
+from kinto_algolia import __version__ as algolia_version
 from . import BaseWebTest
 
 
@@ -34,3 +37,12 @@ class PluginSetup(BaseWebTest, unittest.TestCase):
             client.is_alive.side_effect = AlgoliaException
             resp = self.app.get("/__heartbeat__", status=503)
             assert not resp.json["algolia"]
+
+    def test_include_fails_if_missing_config(self):
+        config = testing.setUp()
+        settings = config.get_settings()
+        settings['kinto.includes'] = 'kinto_algolia'
+        with self.assertRaises(ConfigurationError) as e:
+            kinto.core.initialize(config, '1.0.0')
+        assert str(e.exception) == ('kinto-algolia needs kinto.algolia.application_id '
+                                    'and kinto.algolia.api_key settings to be set.')
