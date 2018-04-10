@@ -14,6 +14,9 @@ class Indexer(object):
         self.client = algoliasearch.Client(application_id, api_key)
         self.prefix = prefix
 
+    def set_extra_headers(self, headers):
+        self.client.set_extra_headers(**headers)
+
     def indexname(self, bucket_id, collection_id):
         return "{}-{}-{}".format(self.prefix, bucket_id, collection_id)
 

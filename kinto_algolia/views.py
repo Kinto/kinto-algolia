@@ -47,6 +47,9 @@ def search_view(request, **kwargs):
     # Access indexer from views using registry.
     indexer = request.registry.indexer
     try:
+        indexer.set_extra_headers(
+            {'Referer': request.headers.get('Referer', request.route_url('hello'))}
+        )
         results = indexer.search(bucket_id, collection_id, **kwargs)
     except AlgoliaException as e:
         logger.exception("Index query failed.")
