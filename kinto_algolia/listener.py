@@ -51,7 +51,6 @@ def on_record_changed(event):
     bucket_id = event.payload["bucket_id"]
     collection_id = event.payload["collection_id"]
     action = event.payload["action"]
-
     try:
         with indexer.bulk() as bulk:
             for change in event.impacted_records:

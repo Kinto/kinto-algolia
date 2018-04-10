@@ -21,24 +21,36 @@ class Indexer(object):
     def indexname(self, bucket_id, collection_id):
         return "{}-{}-{}".format(self.prefix, bucket_id, collection_id)
 
-    def create_index(self, bucket_id, collection_id, settings=None):
-        self.update_index(bucket_id, collection_id, settings)
+    def create_index(self, bucket_id, collection_id, settings=None, wait_for_creation=False):
+        if settings is None:
+            settings = {}
+        res = self.update_index(bucket_id, collection_id, settings=settings)
+        if wait_for_creation:
+            indexname = self.indexname(bucket_id, collection_id)
+            index = self.client.init_index(indexname)
+            index.wait_task(res['taskID'])
 
     def update_index(self, bucket_id, collection_id, settings=None):
         indexname = self.indexname(bucket_id, collection_id)
         if settings is not None:
             index = self.client.init_index(indexname)
-            index.set_settings(settings, forward_to_slaves=True, forward_to_replicas=True)
+            return index.set_settings(settings, forward_to_slaves=True, forward_to_replicas=True)
 
     def delete_index(self, bucket_id, collection_id=None):
         if collection_id is None:
-            collection_id = "*"
-        indexname = self.indexname(bucket_id, collection_id)
-        try:
-            return self.client.delete_index(indexname)
-        except AlgoliaException as e:  # pragma: no cover
-            if 'HTTP Code: 404' in str(e):
-                pass
+            response = self.client.list_indexes()
+            index_prefix = self.indexname(bucket_id, '')
+            collections = [i['name'] for i in response['items']
+                           if i['name'].startswith(index_prefix)]
+        else:
+            collections = [self.indexname(bucket_id, collection_id)]
+
+        for indexname in collections:
+            try:
+                return self.client.delete_index(indexname)
+            except AlgoliaException as e:  # pragma: no cover
+                if 'HTTP Code: 404' not in str(e):
+                    raise
 
     def search(self, bucket_id, collection_id, **kwargs):
         indexname = self.indexname(bucket_id, collection_id)
@@ -52,8 +64,10 @@ class Indexer(object):
             indexname = index['name']
             if indexname.startswith(self.prefix):
                 index = self.client.init_index(indexname)
-                index.clear_index()
-                self.client.delete_index(indexname)
+                res = index.clear_index()
+                index.wait_task(res['taskID'])
+                res = self.client.delete_index(indexname)
+                index.wait_task(res['taskID'])
 
     @contextmanager
     def bulk(self):
@@ -81,7 +95,7 @@ class BulkClient:
     def unindex_record(self, bucket_id, collection_id, record, id_field="id"):
         indexname = self.indexer.indexname(bucket_id, collection_id)
         record_id = record[id_field]
-        self.operations.setdefault(indexname, {})
+        self.operations.setdefault(indexname, [])
         self.operations[indexname].append({'action': 'deleteObject',
                                            'body': {'objectID': record_id}})
 
@@ -96,10 +110,12 @@ def heartbeat(request):
     """
     indexer = request.registry.indexer
     try:
-        return indexer.client.is_alive()
+        indexer.client.is_alive()
     except Exception as e:
         logger.exception(e)
         return False
+    else:
+        return True
 
 
 def load_from_config(config):
