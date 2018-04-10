@@ -48,7 +48,9 @@ Create a new record:
 ::
 
     $ echo '{"data":
-        {"title": "kinto",
+        {"id": "1008855320",
+         "last_modified": 1523349594783,
+         "title": "kinto",
          "description": "A database for the web",
          "_geoloc": {"lng": -73.778925, "lat": 40.639751}}' | \
         http POST http://localhost:8888/v1/buckets/example/collections/notes/records \
