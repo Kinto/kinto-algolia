@@ -47,26 +47,26 @@ def main(cli_args=None):
     bucket_id = args.bucket
     collection_id = args.collection
 
-    # Get index schema from collection metadata.
+    # Get index settings from collection metadata.
     try:
-        schema = get_index_schema(registry.storage, bucket_id, collection_id)
+        settings = get_index_settings(registry.storage, bucket_id, collection_id)
     except RecordNotFoundError:
         logger.error("No collection '%s' in bucket '%s'" % (collection_id, bucket_id))
         return 63
 
     # Give up if collection has no index mapping.
-    if schema is None:
-        logger.error("No `index:schema` attribute found in collection metadata.")
+    if settings is None:
+        logger.error("No `index:settings` attribute found in collection metadata.")
         return 64
 
     # XXX: Are you sure?
-    recreate_index(indexer, bucket_id, collection_id, schema)
+    recreate_index(indexer, bucket_id, collection_id, settings)
     reindex_records(indexer, registry.storage, bucket_id, collection_id)
 
     return 0
 
 
-def get_index_schema(storage, bucket_id, collection_id):
+def get_index_settings(storage, bucket_id, collection_id):
     # Open collection metadata.
     # XXX: https://github.com/Kinto/kinto/issues/710
     metadata = storage.get(parent_id="/buckets/%s" % bucket_id,
@@ -75,13 +75,13 @@ def get_index_schema(storage, bucket_id, collection_id):
     return metadata.get("index:settings")
 
 
-def recreate_index(indexer, bucket_id, collection_id, schema):
+def recreate_index(indexer, bucket_id, collection_id, settings):
     index_name = indexer.indexname(bucket_id, collection_id)
     # Delete existing index.
     indexer.delete_index(bucket_id, collection_id)
     print("Old index '%s' deleted." % index_name)
-    # Recreate the index with the new schema.
-    indexer.create_index(bucket_id, collection_id, schema=schema)
+    # Recreate the index with the new settings.
+    indexer.create_index(bucket_id, collection_id, settings=settings)
     print("New index '%s' created." % index_name)
 
 
@@ -96,10 +96,10 @@ def get_paginated_records(storage, bucket_id, collection_id, limit=5000):
                                      pagination_rules=pagination_rules,
                                      sorting=sorting,
                                      limit=limit)
-        if len(records) == 0:
-            break  # Done.
-
         yield records
+
+        if len(records) < limit:
+            break  # Done.
 
         smallest_timestamp = records[-1]["last_modified"]
         pagination_rules = [
@@ -115,7 +115,8 @@ def reindex_records(indexer, storage, bucket_id, collection_id):
                 for record in records:
                     bulk.index_record(bucket_id, collection_id, record=record)
                 print(".", end="")
-            total += len(bulk.operations)
+            total += len(list(bulk.operations.items())[0][1])
         except AlgoliaException:
             logger.exception("Failed to index record")
+            break
     print("\n%s records reindexed." % total)
