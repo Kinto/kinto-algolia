@@ -25,7 +25,7 @@ class TestMain(BaseWebTest, unittest.TestCase):
 
     def test_cli_fail_if_collection_or_bucket_do_not_exists(self):
         with mock.patch('kinto_algolia.command_reindex.logger') as logger:
-            exit_code = main(['--ini', os.path.join(HERE, 'config.ini'),
+            exit_code = main(['--ini', self.ini_path(),
                               '--bucket', 'bid', '--collection', 'cid'])
             assert exit_code == 63
             logger.error.assert_called_with(
@@ -37,7 +37,7 @@ class TestMain(BaseWebTest, unittest.TestCase):
         self.app.put("/buckets/bid/collections/cid", headers=self.headers)
 
         with mock.patch('kinto_algolia.command_reindex.logger') as logger:
-            exit_code = main(['--ini', os.path.join(HERE, 'config.ini'),
+            exit_code = main(['--ini', self.ini_path(),
                               '--bucket', 'bid', '--collection', 'cid'])
             assert exit_code == 64
             logger.error.assert_called_with(
@@ -52,7 +52,7 @@ class TestMain(BaseWebTest, unittest.TestCase):
                            {"data": {"build": {"id": "efg", "date": "2017-02-01"}}},
                            headers=self.headers)
 
-        exit_code = main(['--ini', os.path.join(HERE, 'config.ini'),
+        exit_code = main(['--ini', self.ini_path(),
                           '--bucket', 'bid', '--collection', 'cid'])
         assert exit_code == 0
 

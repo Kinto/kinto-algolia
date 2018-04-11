@@ -85,7 +85,8 @@ class Indexer(object):
 
         for indexname, requests in bulk.operations.items():
             index = self.client.init_index(indexname)
-            index.batch(requests)
+            res = index.batch(requests)
+            self.tasks.append((indexname, res['taskID']))
 
 
 class BulkClient:
@@ -105,8 +106,10 @@ class BulkClient:
         indexname = self.indexer.indexname(bucket_id, collection_id)
         record_id = record[id_field]
         self.operations.setdefault(indexname, [])
-        self.operations[indexname].append({'action': 'deleteObject',
-                                           'body': {'objectID': record_id}})
+        self.operations[indexname].append({
+            'action': 'deleteObject',
+            'body': {'objectID': record_id}
+        })
 
 
 def heartbeat(request):

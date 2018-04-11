@@ -25,10 +25,17 @@ class BaseWebTest(CoreWebTest):
         self.indexer.flush()
 
     @classmethod
+    def ini_path(cls):
+        ini_local_path = os.path.join(here, 'config_local.ini')
+        ini_path = os.path.join(here, 'config.ini')
+        if os.path.exists(ini_local_path):
+            ini_path = ini_local_path
+        return ini_path
+
+    @classmethod
     def get_app_settings(cls, extras=None):
-        ini_path = os.path.join(here, cls.config)
         config = configparser.ConfigParser()
-        config.read(ini_path)
+        config.read(cls.ini_path())
         settings = dict(config.items('app:main'))
         if extras:
             settings.update(extras)
