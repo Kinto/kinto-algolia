@@ -7,6 +7,8 @@ from . import BaseWebTest
 class PostActivation(BaseWebTest, unittest.TestCase):
 
     def setUp(self):
+        self.app.app.registry.indexer.flush()
+        sleep(1)
         app = self.make_app(settings={"kinto.includes": ""})
         capabilities = app.get("/").json["capabilities"]
         assert "algolia" not in capabilities
