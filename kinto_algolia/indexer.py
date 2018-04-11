@@ -55,8 +55,7 @@ class Indexer(object):
 
         for indexname in collections:
             try:
-                res = self.client.delete_index(indexname)
-                self.tasks.append((indexname, res['taskID']))
+                self.client.delete_index(indexname)
             except AlgoliaException as e:  # pragma: no cover
                 if 'HTTP Code: 404' not in str(e):
                     raise
