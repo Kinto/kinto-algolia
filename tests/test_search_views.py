@@ -1,6 +1,5 @@
 import mock
 import unittest
-from time import sleep
 
 from algoliasearch.helpers import AlgoliaException
 from kinto.core.testing import get_user_headers
@@ -41,7 +40,7 @@ class SearchView(BaseWebTest, unittest.TestCase):
                            {"data": {"age": 12}}, headers=self.headers)
         self.app.post_json("/buckets/bid/collections/cid/records",
                            {"data": {"age": 21}}, headers=self.headers)
-        sleep(1)  # Make sure to give enough time for indexing
+        self.indexer.join()
         resp = self.app.get("/buckets/bid/collections/cid/search?filters=age<15",
                             headers=self.headers)
         result = resp.json
@@ -53,6 +52,7 @@ class SearchView(BaseWebTest, unittest.TestCase):
                            {"data": {"age": 12}}, headers=self.headers)
         self.app.post_json("/buckets/bid/collections/cid/records",
                            {"data": {"age": 21}}, headers=self.headers)
+        self.indexer.join()
         resp = self.app.get("/buckets/bid/collections/cid/search",
                             headers=self.headers)
         result = resp.json

@@ -1,5 +1,4 @@
 import unittest
-from time import sleep
 
 from . import BaseWebTest
 
@@ -7,8 +6,6 @@ from . import BaseWebTest
 class PostActivation(BaseWebTest, unittest.TestCase):
 
     def setUp(self):
-        self.app.app.registry.indexer.flush()
-        sleep(1)
         app = self.make_app(settings={"kinto.includes": ""})
         capabilities = app.get("/").json["capabilities"]
         assert "algolia" not in capabilities
@@ -33,7 +30,7 @@ class PostActivation(BaseWebTest, unittest.TestCase):
         self.app.post_json("/buckets/bid/collections/cid/records",
                            {"data": {"after": "indexing"}},
                            headers=self.headers)
-        sleep(1)
+        self.indexer.join()
         resp = self.app.get("/buckets/bid/collections/cid/search",
                             headers=self.headers)
         results = resp.json

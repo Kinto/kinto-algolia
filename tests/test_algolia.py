@@ -1,6 +1,5 @@
 import mock
 import unittest
-from time import sleep
 
 from algoliasearch.helpers import AlgoliaException
 
@@ -10,14 +9,13 @@ from . import BaseWebTest
 class RecordIndexing(BaseWebTest, unittest.TestCase):
 
     def setUp(self):
-        self.app.app.registry.indexer.flush()
-        sleep(1)
         self.app.put("/buckets/bid", headers=self.headers)
         self.app.put("/buckets/bid/collections/cid", headers=self.headers)
         resp = self.app.post_json("/buckets/bid/collections/cid/records",
                                   {"data": {"hello": "world"}},
                                   headers=self.headers)
         self.record = resp.json["data"]
+        self.indexer.join()
 
     def test_new_index_settings_are_updated(self):
         self.app.put_json("/buckets/bid/collections/cid",
@@ -38,7 +36,8 @@ class RecordIndexing(BaseWebTest, unittest.TestCase):
         rid = self.record["id"]
         self.app.delete("/buckets/bid/collections/cid/records/{}".format(rid),
                         headers=self.headers)
-        sleep(1)
+        self.indexer.join()
+
         resp = self.app.post("/buckets/bid/collections/cid/search",
                              headers=self.headers)
         result = resp.json

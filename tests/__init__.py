@@ -17,10 +17,12 @@ class BaseWebTest(CoreWebTest):
     def __init__(self, *args, **kwargs):
         super(BaseWebTest, self).__init__(*args, **kwargs)
         self.headers.update(get_user_headers('mat'))
+        self.indexer = self.app.app.registry.indexer
 
     def tearDown(self):
         super().tearDown()
-        self.app.app.registry.indexer.flush()
+        self.indexer.join()
+        self.indexer.flush()
 
     @classmethod
     def get_app_settings(cls, extras=None):
