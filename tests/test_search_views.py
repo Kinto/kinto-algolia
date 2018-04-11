@@ -66,7 +66,7 @@ class SearchView(BaseWebTest, unittest.TestCase):
 #         app = self.make_app(settings=settings)
 #         app.put("/buckets/bid", headers=self.headers)
 #         app.put_json("/buckets/bid/collections/cid",
-#                      {"data": {"index:settings": {}}},
+#                      {"data": {"algolia:settings": {}}},
 #                      headers=self.headers)
 #         requests = [{
 #             "method": "POST",

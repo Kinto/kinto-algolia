@@ -21,7 +21,7 @@ class RecordIndexing(BaseWebTest, unittest.TestCase):
 
     def test_new_index_settings_are_updated(self):
         self.app.put_json("/buckets/bid/collections/cid",
-                          {"data": {"index:settings": {}}},
+                          {"data": {"algolia:settings": {}}},
                           headers=self.headers)
 
     def test_new_records_are_indexed(self):

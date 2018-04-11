@@ -15,7 +15,7 @@ client = kinto_http.Client(server_url=server, auth=auth)
 client.create_bucket(id=bucket, if_not_exists=True)
 # Define the ElasticSearch mapping in the collection metadata.
 collection_metadata = {
-    "index:settings": {
+    "algolia:settings": {
         "attributesToIndex": ["name"]
     }
 }

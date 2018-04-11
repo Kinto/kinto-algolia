@@ -41,12 +41,12 @@ class TestMain(BaseWebTest, unittest.TestCase):
                               '--bucket', 'bid', '--collection', 'cid'])
             assert exit_code == 64
             logger.error.assert_called_with(
-                'No `index:settings` attribute found in collection metadata.')
+                'No `algolia:settings` attribute found in collection metadata.')
 
     def test_cli_reindexes_if_collection_has_an_index_schema(self):
         # Create collection or bucket
         self.app.put("/buckets/bid", headers=self.headers)
-        body = {"data": {"index:settings": self.schema}}
+        body = {"data": {"algolia:settings": self.schema}}
         self.app.put_json("/buckets/bid/collections/cid", body, headers=self.headers)
         self.app.post_json("/buckets/bid/collections/cid/records",
                            {"data": {"build": {"id": "efg", "date": "2017-02-01"}}},
@@ -80,7 +80,7 @@ class TestMain(BaseWebTest, unittest.TestCase):
     def test_get_paginated_records(self):
         # Create collection or bucket
         self.app.put("/buckets/bid", headers=self.headers)
-        body = {"data": {"index:settings": self.schema}}
+        body = {"data": {"algolia:settings": self.schema}}
         self.app.put_json("/buckets/bid/collections/cid", body, headers=self.headers)
         for i in range(5):
             self.app.post_json("/buckets/bid/collections/cid/records",
