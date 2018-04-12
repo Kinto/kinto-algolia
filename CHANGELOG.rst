@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.2.0 (unreleased)
+------------------
+
+- Nothing changed yet.
+
+
 0.1.0 (2018-04-12)
 ------------------
 
@@ -8,12 +14,10 @@ Changelog
 
 - Flush indices when server is flushed
 - Perform insertions and deletion in bulk for better efficiency
-- Add setting to force index refresh on change
 - Add heartbeat
 - Delete indices when buckets and collections are deleted
 - Support quick search from querystring
-- Return details about invalid queries in request body
-- Support defining mapping from the ``index:schema`` property in the collection metadata
+- Support defining mapping from the ``algolia:settings`` property in the collection metadata
 
 **Bug fixes**
 
