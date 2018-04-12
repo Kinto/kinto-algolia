@@ -12,7 +12,7 @@ def on_collection_created(event):
     bucket_id = event.payload["bucket_id"]
     for created in event.impacted_records:
         collection_id = created["new"]["id"]
-        settings = created["new"].get("index:settings")
+        settings = created["new"].get("algolia:settings")
         indexer.create_index(bucket_id, collection_id, settings=settings)
 
 
@@ -21,12 +21,10 @@ def on_collection_updated(event):
     bucket_id = event.payload["bucket_id"]
     for updated in event.impacted_records:
         collection_id = updated["new"]["id"]
-        old_schema = updated["old"].get("index:settings")
-        new_schema = updated["new"].get("index:settings")
+        old_schema = updated["old"].get("algolia:settings")
+        new_schema = updated["new"].get("algolia:settings")
         # Create if there was no index before.
-        if old_schema is None and new_schema is not None:
-            indexer.create_index(bucket_id, collection_id, schema=new_schema)
-        elif old_schema != new_schema:
+        if old_schema != new_schema:
             indexer.update_index(bucket_id, collection_id, schema=new_schema)
 
 
@@ -51,7 +49,6 @@ def on_record_changed(event):
     bucket_id = event.payload["bucket_id"]
     collection_id = event.payload["collection_id"]
     action = event.payload["action"]
-
     try:
         with indexer.bulk() as bulk:
             for change in event.impacted_records:

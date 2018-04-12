@@ -120,7 +120,7 @@ Custom index settings
 By default, Algolia infers the data types from the indexed records.
 
 But it's possible to define the index mappings (ie. schema) from the collection metadata,
-in the ``index:settings`` property:
+in the ``algolia:settings`` property:
 
 .. code-block:: bash
 

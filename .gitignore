@@ -1,5 +1,8 @@
+tests/config_local.ini
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
+.pytest_cache/
 *.py[cod]
 
 # C extensions
