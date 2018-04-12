@@ -129,7 +129,7 @@ in the ``algolia:settings`` property:
     }' | http PATCH "http://localhost:8888/v1/buckets/blog/collections/builds" \
         --auth token:admin-token --verbose
 
-Refer to [Algolia official documentation](https://www.algolia.com/doc/api-reference/api-methods/get-settings/?language=python#response) for more information about settings.
+Refer to `Algolia official documentation <https://www.algolia.com/doc/api-reference/api-methods/get-settings/?language=python#response>`_ for more information about settings.
 
 
 Running the tests
