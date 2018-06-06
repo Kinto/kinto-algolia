@@ -26,7 +26,7 @@ ENTRY_POINTS = {
 
 setup(
     name='kinto-algolia',
-    version='0.1.1',
+    version='0.2.0.dev0',
     description="Index and search records using Algolia.",
     long_description=readme + '\n\n' + history,
     author='Rémy Hubscher',
