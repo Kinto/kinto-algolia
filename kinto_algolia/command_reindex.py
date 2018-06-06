@@ -55,12 +55,6 @@ def main(cli_args=None):
         logger.error("No collection '%s' in bucket '%s'" % (collection_id, bucket_id))
         return 63
 
-    # Give up if collection has no index mapping.
-    if settings is None:
-        logger.error("No `algolia:settings` attribute found in collection metadata.")
-        return 64
-
-    # XXX: Are you sure?
     recreate_index(indexer, bucket_id, collection_id, settings)
     print("Waiting for Algolia quota stats to propagate.")
     for _ in range(3):

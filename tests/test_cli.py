@@ -31,18 +31,6 @@ class TestMain(BaseWebTest, unittest.TestCase):
             logger.error.assert_called_with(
                 "No collection 'cid' in bucket 'bid'")
 
-    def test_cli_fail_if_collection_has_no_index_schema(self):
-        # Create collection or bucket
-        self.app.put("/buckets/bid", headers=self.headers)
-        self.app.put("/buckets/bid/collections/cid", headers=self.headers)
-
-        with mock.patch('kinto_algolia.command_reindex.logger') as logger:
-            exit_code = main(['--ini', self.ini_path(),
-                              '--bucket', 'bid', '--collection', 'cid'])
-            assert exit_code == 64
-            logger.error.assert_called_with(
-                'No `algolia:settings` attribute found in collection metadata.')
-
     def test_cli_reindexes_if_collection_has_an_index_schema(self):
         # Create collection or bucket
         self.app.put("/buckets/bid", headers=self.headers)
