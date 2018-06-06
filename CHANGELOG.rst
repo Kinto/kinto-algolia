@@ -1,10 +1,12 @@
 Changelog
 =========
 
-0.2.0 (unreleased)
+0.1.1 (2018-06-06)
 ------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Fix reindex command.
 
 
 0.1.0 (2018-04-12)
