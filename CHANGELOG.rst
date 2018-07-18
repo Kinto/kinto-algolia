@@ -1,10 +1,12 @@
 Changelog
 =========
 
-0.2.0 (unreleased)
+0.2.0 (2018-07-18)
 ------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Update algolia settings.
 
 
 0.1.1 (2018-06-06)
