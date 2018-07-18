@@ -21,11 +21,11 @@ def on_collection_updated(event):
     bucket_id = event.payload["bucket_id"]
     for updated in event.impacted_records:
         collection_id = updated["new"]["id"]
-        old_schema = updated["old"].get("algolia:settings")
-        new_schema = updated["new"].get("algolia:settings")
+        old_settings = updated["old"].get("algolia:settings")
+        new_settings = updated["new"].get("algolia:settings")
         # Create if there was no index before.
-        if old_schema != new_schema:
-            indexer.update_index(bucket_id, collection_id, schema=new_schema)
+        if old_settings != new_settings:
+            indexer.update_index(bucket_id, collection_id, settings=new_settings)
 
 
 def on_collection_deleted(event):
