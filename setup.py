@@ -13,8 +13,6 @@ REQUIREMENTS = [
 ]
 
 TEST_REQUIREMENTS = [
-    'mock',
-    'unittest2',
     'webtest',
 ]
 

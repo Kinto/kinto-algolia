@@ -1,5 +1,5 @@
-import mock
 import unittest
+from unittest import mock
 
 from algoliasearch.helpers import AlgoliaException
 from kinto.core.testing import get_user_headers

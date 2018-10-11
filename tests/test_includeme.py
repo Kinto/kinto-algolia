@@ -1,5 +1,5 @@
-import mock
 import unittest
+from unittest import mock
 
 import kinto.core
 from algoliasearch.helpers import AlgoliaException

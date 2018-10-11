@@ -4,7 +4,7 @@ pytest-cache
 pytest-cover
 pytest-sugar
 pytest-xdist
-mock
-unittest2
 webtest
 kinto[postgresql,monitoring]
+kinto-redis
+mock

@@ -1,5 +1,5 @@
-import mock
 import unittest
+from unittest import mock
 
 from algoliasearch.helpers import AlgoliaException
 
