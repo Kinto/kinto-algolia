@@ -27,6 +27,16 @@ $(DEV_STAMP): $(PYTHON) dev-requirements.txt
 	$(VENV)/bin/pip install -r dev-requirements.txt
 	touch $(DEV_STAMP)
 
+clean:
+	find . -name '*.pyc' -delete
+	find . -name '__pycache__' -type d | xargs rm -fr
+
+distclean: clean
+	rm -fr *.egg *.egg-info/ dist/ build/
+
+maintainer-clean: distclean
+	rm -fr .venv/ .tox/
+
 tox: $(TOX)
 $(TOX): virtualenv
 	$(VENV)/bin/pip install tox
