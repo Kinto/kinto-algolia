@@ -28,28 +28,38 @@ class Indexer(object):
     def indexname(self, bucket_id, collection_id):
         return "{}-{}-{}".format(self.prefix, bucket_id, collection_id)
 
-    def create_index(self, bucket_id, collection_id, settings=None, wait_for_creation=False):
+    def create_index(
+        self, bucket_id, collection_id, settings=None, wait_for_creation=False
+    ):
         if settings is None:
             settings = {}
-        self.update_index(bucket_id, collection_id, settings=settings,
-                          wait_for_task=wait_for_creation)
+        self.update_index(
+            bucket_id, collection_id, settings=settings, wait_for_task=wait_for_creation
+        )
 
-    def update_index(self, bucket_id, collection_id, settings=None, wait_for_task=False):
+    def update_index(
+        self, bucket_id, collection_id, settings=None, wait_for_task=False
+    ):
         indexname = self.indexname(bucket_id, collection_id)
         if settings is not None:
             index = self.client.init_index(indexname)
-            res = index.set_settings(settings, forward_to_slaves=True, forward_to_replicas=True)
+            res = index.set_settings(
+                settings, forward_to_slaves=True, forward_to_replicas=True
+            )
             if wait_for_task:
-                index.wait_task(res['taskID'])
+                index.wait_task(res["taskID"])
             else:
-                self.tasks.append((indexname, res['taskID']))
+                self.tasks.append((indexname, res["taskID"]))
 
     def delete_index(self, bucket_id, collection_id=None):
         if collection_id is None:
             response = self.client.list_indexes()
-            index_prefix = self.indexname(bucket_id, '')
-            collections = [i['name'] for i in response['items']
-                           if i['name'].startswith(index_prefix)]
+            index_prefix = self.indexname(bucket_id, "")
+            collections = [
+                i["name"]
+                for i in response["items"]
+                if i["name"].startswith(index_prefix)
+            ]
         else:
             collections = [self.indexname(bucket_id, collection_id)]
 
@@ -57,7 +67,7 @@ class Indexer(object):
             try:
                 self.client.delete_index(indexname)
             except AlgoliaException as e:  # pragma: no cover
-                if 'HTTP Code: 404' not in str(e):
+                if "HTTP Code: 404" not in str(e):
                     raise
 
     def search(self, bucket_id, collection_id, **kwargs):
@@ -68,14 +78,14 @@ class Indexer(object):
 
     def flush(self):
         response = self.client.list_indexes()
-        for index in response['items']:
-            indexname = index['name']
+        for index in response["items"]:
+            indexname = index["name"]
             if indexname.startswith(self.prefix):
                 index = self.client.init_index(indexname)
                 res = index.clear_index()
-                self.tasks.append((indexname, res['taskID']))
+                self.tasks.append((indexname, res["taskID"]))
                 res = self.client.delete_index(indexname)
-                self.tasks.append((indexname, res['taskID']))
+                self.tasks.append((indexname, res["taskID"]))
         self.join()
 
     @contextmanager
@@ -86,7 +96,7 @@ class Indexer(object):
         for indexname, requests in bulk.operations.items():
             index = self.client.init_index(indexname)
             res = index.batch(requests)
-            self.tasks.append((indexname, res['taskID']))
+            self.tasks.append((indexname, res["taskID"]))
 
 
 class BulkClient:
@@ -100,16 +110,15 @@ class BulkClient:
         obj = deepcopy(record)
         record_id = obj.pop(id_field)
         obj["objectID"] = record_id
-        self.operations[indexname].append({'action': 'addObject', 'body': obj})
+        self.operations[indexname].append({"action": "addObject", "body": obj})
 
     def unindex_record(self, bucket_id, collection_id, record, id_field="id"):
         indexname = self.indexer.indexname(bucket_id, collection_id)
         record_id = record[id_field]
         self.operations.setdefault(indexname, [])
-        self.operations[indexname].append({
-            'action': 'deleteObject',
-            'body': {'objectID': record_id}
-        })
+        self.operations[indexname].append(
+            {"action": "deleteObject", "body": {"objectID": record_id}}
+        )
 
 
 def heartbeat(request):
@@ -132,13 +141,15 @@ def heartbeat(request):
 
 def load_from_config(config):
     settings = config.get_settings()
-    application_id = settings.get('algolia.application_id')
-    api_key = settings.get('algolia.api_key')
+    application_id = settings.get("algolia.application_id")
+    api_key = settings.get("algolia.api_key")
     if application_id is None or api_key is None:
-        message = ('kinto-algolia needs kinto.algolia.application_id '
-                   'and kinto.algolia.api_key settings to be set.')
+        message = (
+            "kinto-algolia needs kinto.algolia.application_id "
+            "and kinto.algolia.api_key settings to be set."
+        )
         raise ConfigurationError(message)
 
-    prefix = settings.get('algolia.index_prefix', 'kinto')
+    prefix = settings.get("algolia.index_prefix", "kinto")
     indexer = Indexer(application_id=application_id, api_key=api_key, prefix=prefix)
     return indexer

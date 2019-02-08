@@ -14,20 +14,24 @@ logger = logging.getLogger(__name__)
 class RouteFactory(authorization.RouteFactory):
     def __init__(self, request):
         super().__init__(request)
-        records_plural = utils.strip_uri_prefix(request.path.replace("/search", "/records"))
+        records_plural = utils.strip_uri_prefix(
+            request.path.replace("/search", "/records")
+        )
         self.permission_object_id = records_plural
         self.required_permission = "read"
 
 
-search = Service(name="search",
-                 path='/buckets/{bucket_id}/collections/{collection_id}/search',
-                 description="Search",
-                 factory=RouteFactory)
+search = Service(
+    name="search",
+    path="/buckets/{bucket_id}/collections/{collection_id}/search",
+    description="Search",
+    factory=RouteFactory,
+)
 
 
 def search_view(request, **kwargs):
-    bucket_id = request.matchdict['bucket_id']
-    collection_id = request.matchdict['collection_id']
+    bucket_id = request.matchdict["bucket_id"]
+    collection_id = request.matchdict["collection_id"]
 
     # algoliasearch doesn't support pagination
     # https://github.com/algolia/algoliasearch-client-python/issues/365
@@ -50,21 +54,18 @@ def search_view(request, **kwargs):
     indexer = request.registry.indexer
     try:
         indexer.set_extra_headers(
-            {'Referer': request.headers.get('Referer', request.route_url('hello'))}
+            {"Referer": request.headers.get("Referer", request.route_url("hello"))}
         )
         results = indexer.search(bucket_id, collection_id, **kwargs)
     except AlgoliaException as e:
         logger.exception("Index query failed.")
         message = str(e)
-        if 'does not exist' in message:
+        if "does not exist" in message:
             # If plugin was enabled after the creation of the collection.
             indexer.create_index(bucket_id, collection_id, wait_for_creation=True)
             return search_view(request, **kwargs)
         else:
-            error_details = {
-                'name': "Algolia error",
-                'description': message
-            }
+            error_details = {"name": "Algolia error", "description": message}
             return raise_invalid(request, **error_details)
 
     return results
@@ -79,8 +80,8 @@ def post_search(request):
             body = {}
         else:
             error_details = {
-                'name': 'JSONDecodeError',
-                'description': 'Please make sure your request body is a valid JSON payload.',
+                "name": "JSONDecodeError",
+                "description": "Please make sure your request body is a valid JSON payload.",
             }
             raise_invalid(request, **error_details)
 

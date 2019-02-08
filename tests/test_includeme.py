@@ -1,13 +1,15 @@
 import unittest
 from unittest import mock
 
-import kinto.core
 from algoliasearch.helpers import AlgoliaException
 from pyramid import testing
 from pyramid.exceptions import ConfigurationError
 
-from kinto_algolia import __version__ as algolia_version
+import kinto.core
+
+from kinto_algolia import __version__ as algolia_version, includeme
 from . import BaseWebTest
+from kinto import main
 
 
 class PluginSetup(BaseWebTest, unittest.TestCase):
@@ -19,7 +21,8 @@ class PluginSetup(BaseWebTest, unittest.TestCase):
         expected = {
             "version": algolia_version,
             "description": "Index and search records using Algolia.",
-            "url": "https://github.com/Kinto/kinto-algolia"
+            "url": "https://github.com/Kinto/kinto-algolia",
+            "collections": ["/buckets/bid/collections/cid"],
         }
         assert expected == capabilities['algolia']
 
@@ -41,8 +44,9 @@ class PluginSetup(BaseWebTest, unittest.TestCase):
     def test_include_fails_if_missing_config(self):
         config = testing.setUp()
         settings = config.get_settings()
-        settings['kinto.includes'] = 'kinto_algolia'
+        kinto.core.initialize(config, '0.0.1')
         with self.assertRaises(ConfigurationError) as e:
-            kinto.core.initialize(config, '1.0.0')
+            config.include(includeme)
+            main({}, None, **settings)
         assert str(e.exception) == ('kinto-algolia needs kinto.algolia.application_id '
                                     'and kinto.algolia.api_key settings to be set.')

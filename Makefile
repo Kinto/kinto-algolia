@@ -41,6 +41,9 @@ tox: $(TOX)
 $(TOX): virtualenv
 	$(VENV)/bin/pip install tox
 
+black: install-dev
+	$(VENV)/bin/black kinto_algolia
+
 tests-once: install-dev
 	$(VENV)/bin/py.test --cov-report term-missing --cov-fail-under 100 --cov kinto_algolia
 
