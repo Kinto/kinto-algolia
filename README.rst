@@ -33,6 +33,10 @@ In the `Kinto <http://kinto.readthedocs.io/>`_ settings:
     kinto.algolia.application_id = YourApplicationID
     kinto.algolia.api_key = YourAPIKey
 
+    # List of buckets/collections to show:
+    kinto.algolia.resources = /buckets/chefclub-v2
+                              /buckets/chefclub/collections/recipes
+
 By default, indices names are prefixed with ``kinto-``. You change this with:
 
 .. code-block :: ini

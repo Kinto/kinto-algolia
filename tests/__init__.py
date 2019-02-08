@@ -14,10 +14,11 @@ class BaseWebTest(CoreWebTest):
     entry_point = kinto_main
     config = 'config.ini'
 
-    def __init__(self, *args, **kwargs):
-        super(BaseWebTest, self).__init__(*args, **kwargs)
-        self.headers.update(get_user_headers('mat'))
-        self.indexer = self.app.app.registry.indexer
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.headers.update(get_user_headers('mat'))
+        cls.indexer = cls.app.app.registry.indexer
 
     def tearDown(self):
         super().tearDown()

@@ -4,7 +4,7 @@ Changelog
 0.3.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Add support for collections whitelist (#6)
 
 
 0.2.0 (2018-07-18)
