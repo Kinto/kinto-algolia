@@ -6,7 +6,7 @@ addons:
   postgresql: '9.5'
 env:
   matrix:
-  - TOX_ENV=py35
+  - TOX_ENV=py36
   - TOX_ENV=kinto-master
   - TOX_ENV=flake8
   global:
