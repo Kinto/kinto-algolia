@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.1.0 (unreleased)
+1.1.0 (2019-04-26)
 ------------------
 
 - Upgrade to algoliasearch 2.0
