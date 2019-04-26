@@ -1,7 +1,7 @@
 import unittest
 from unittest import mock
 
-from algoliasearch.helpers import AlgoliaException
+from algoliasearch.exceptions import AlgoliaException
 from kinto.core.testing import get_user_headers
 
 from . import BaseWebTest

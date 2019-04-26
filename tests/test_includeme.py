@@ -1,7 +1,7 @@
 import unittest
 from unittest import mock
 
-from algoliasearch.helpers import AlgoliaException
+from algoliasearch.exceptions import AlgoliaException
 from pyramid import testing
 from pyramid.exceptions import ConfigurationError
 
@@ -37,7 +37,7 @@ class PluginSetup(BaseWebTest, unittest.TestCase):
 
     def test_returns_false_if_connection_fails(self):
         with mock.patch.object(self.app.app.registry.indexer, "client") as client:
-            client.is_alive.side_effect = AlgoliaException
+            client._transporter.read.side_effect = AlgoliaException
             resp = self.app.get("/__heartbeat__", status=503)
             assert not resp.json["algolia"]
 
