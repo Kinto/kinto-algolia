@@ -1,6 +1,6 @@
 import logging
 
-from algoliasearch.helpers import AlgoliaException
+from algoliasearch.exceptions import AlgoliaException
 from kinto.core.events import ACTIONS
 from .utils import is_monitoring_collection
 

@@ -3,7 +3,7 @@ import logging
 import time
 import sys
 
-from algoliasearch.helpers import AlgoliaException
+from algoliasearch.exceptions import AlgoliaException
 from pyramid.paster import bootstrap
 
 from kinto.core.storage.exceptions import RecordNotFoundError

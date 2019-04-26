@@ -1,7 +1,7 @@
 import json
 import logging
 
-from algoliasearch.helpers import AlgoliaException
+from algoliasearch.exceptions import AlgoliaException
 from kinto.core import authorization
 from kinto.core import Service
 from kinto.core import utils

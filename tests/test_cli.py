@@ -2,7 +2,7 @@ import os
 import unittest
 from unittest import mock
 
-from algoliasearch.helpers import AlgoliaException
+from algoliasearch.exceptions import AlgoliaException
 from kinto_algolia.command_reindex import main, reindex_records, get_paginated_records
 
 from . import BaseWebTest

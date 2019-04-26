@@ -2,8 +2,8 @@ import logging
 from copy import deepcopy
 from contextlib import contextmanager
 
-from algoliasearch import algoliasearch
-from algoliasearch.helpers import AlgoliaException
+from algoliasearch.search_client import SearchClient
+from algoliasearch.exceptions import AlgoliaException
 from pyramid.exceptions import ConfigurationError
 
 
@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 class Indexer(object):
     def __init__(self, application_id, api_key, prefix="kinto"):
-        self.client = algoliasearch.Client(application_id, api_key)
+        self.client = SearchClient.create(application_id, api_key)
         self.prefix = prefix
         self.tasks = []
 
@@ -23,7 +23,7 @@ class Indexer(object):
         self.tasks = []
 
     def set_extra_headers(self, headers):
-        self.client.set_extra_headers(**headers)
+        self.client._config.headers.update(headers)
 
     def indexname(self, bucket_id, collection_id):
         return "{}-{}-{}".format(self.prefix, bucket_id, collection_id)
@@ -43,17 +43,15 @@ class Indexer(object):
         indexname = self.indexname(bucket_id, collection_id)
         if settings is not None:
             index = self.client.init_index(indexname)
-            res = index.set_settings(
-                settings, forward_to_slaves=True, forward_to_replicas=True
-            )
+            res = index.set_settings(settings, {'forwardToReplicas': True})
             if wait_for_task:
-                index.wait_task(res["taskID"])
+                res.wait()
             else:
-                self.tasks.append((indexname, res["taskID"]))
+                self.tasks.append((indexname, res[0]["taskID"]))
 
     def delete_index(self, bucket_id, collection_id=None):
         if collection_id is None:
-            response = self.client.list_indexes()
+            response = self.client.list_indices()
             index_prefix = self.indexname(bucket_id, "")
             collections = [
                 i["name"]
@@ -65,7 +63,7 @@ class Indexer(object):
 
         for indexname in collections:
             try:
-                self.client.delete_index(indexname)
+                self.client.init_index(indexname).delete()
             except AlgoliaException as e:  # pragma: no cover
                 if "HTTP Code: 404" not in str(e):
                     raise
@@ -74,19 +72,16 @@ class Indexer(object):
         indexname = self.indexname(bucket_id, collection_id)
         index = self.client.init_index(indexname)
         query = kwargs.pop("query", "")
-        return index.search(query, args=kwargs)
+        return index.search(query, kwargs)
 
     def flush(self):
-        response = self.client.list_indexes()
+        response = self.client.list_indices()
         for index in response["items"]:
             indexname = index["name"]
             if indexname.startswith(self.prefix):
                 index = self.client.init_index(indexname)
-                res = index.clear_index()
-                self.tasks.append((indexname, res["taskID"]))
-                res = self.client.delete_index(indexname)
-                self.tasks.append((indexname, res["taskID"]))
-        self.join()
+                index.clear_objects().wait()
+                index.delete().wait()
 
     @contextmanager
     def bulk(self):
@@ -96,7 +91,7 @@ class Indexer(object):
         for indexname, requests in bulk.operations.items():
             index = self.client.init_index(indexname)
             res = index.batch(requests)
-            self.tasks.append((indexname, res["taskID"]))
+            self.tasks.append((indexname, res[0]["taskID"]))
 
 
 class BulkClient:
