@@ -16,13 +16,15 @@ class ParentDeletion(BaseWebTest, unittest.TestCase):
     def test_index_is_deleted_when_collection_is_deleted(self):
         with mock.patch.object(self.app.app.registry.indexer, "client") as client:
             self.app.delete("/buckets/bid/collections/cid", headers=self.headers)
-        client.delete_index.assert_called_with('kinto-bid-cid')
+        client.init_index.assert_called_once_with('kinto-bid-cid')
+        client.init_index.return_value.delete.assert_called_once()
 
     def test_index_is_deleted_when_bucket_is_deleted(self):
         with mock.patch.object(self.app.app.registry.indexer, "client") as client:
-            client.list_indexes.return_value = {"items": [
+            client.list_indices.return_value = {"items": [
                 {"name": "kinto-foo-bar"},
                 {"name": "kinto-bid-cid"}
             ]}
             self.app.delete("/buckets/bid", headers=self.headers)
-        client.delete_index.assert_called_with('kinto-bid-cid')
+        client.init_index.assert_called_once_with('kinto-bid-cid')
+        client.init_index.return_value.delete.assert_called_once()

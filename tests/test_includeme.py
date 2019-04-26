@@ -37,7 +37,7 @@ class PluginSetup(BaseWebTest, unittest.TestCase):
 
     def test_returns_false_if_connection_fails(self):
         with mock.patch.object(self.app.app.registry.indexer, "client") as client:
-            client.is_alive.side_effect = AlgoliaException
+            client._transporter.read.side_effect = AlgoliaException
             resp = self.app.get("/__heartbeat__", status=503)
             assert not resp.json["algolia"]
 

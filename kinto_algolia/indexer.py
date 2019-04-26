@@ -2,6 +2,7 @@ import logging
 from copy import deepcopy
 from contextlib import contextmanager
 
+from algoliasearch.http.verb import Verb
 from algoliasearch.search_client import SearchClient
 from algoliasearch.exceptions import AlgoliaException
 from pyramid.exceptions import ConfigurationError
@@ -43,7 +44,7 @@ class Indexer(object):
         indexname = self.indexname(bucket_id, collection_id)
         if settings is not None:
             index = self.client.init_index(indexname)
-            res = index.set_settings(settings, {'forwardToReplicas': True})
+            res = index.set_settings(settings, {"forwardToReplicas": True})
             if wait_for_task:
                 res.wait()
             else:
@@ -82,6 +83,9 @@ class Indexer(object):
                 index = self.client.init_index(indexname)
                 index.clear_objects().wait()
                 index.delete().wait()
+
+    def isalive(self):
+        self.client._transporter.read(Verb.GET, "1/isalive", {}, None)
 
     @contextmanager
     def bulk(self):
@@ -126,7 +130,7 @@ def heartbeat(request):
     """
     indexer = request.registry.indexer
     try:
-        indexer.client.is_alive()
+        indexer.isalive()
     except Exception as e:
         logger.exception(e)
         return False
