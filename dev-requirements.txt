@@ -3,7 +3,6 @@ flake8
 pytest
 pytest-cache
 pytest-cov
-pytest-sugar
 pytest-xdist
 webtest
 kinto[postgresql,monitoring]
