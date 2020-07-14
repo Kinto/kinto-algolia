@@ -33,7 +33,7 @@ simplejson==3.17.0
 six==1.15.0
 transaction==3.0.0
 translationstring==1.4
-typing==3.7.4.1
+typing==3.7.4.3
 ujson==3.0.0
 urllib3==1.25.9
 venusian==3.0.0
